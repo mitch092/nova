@@ -88,7 +88,7 @@ namespace nova {
 
 		//---//helper functions for keyboard
 		INPUT make_input_kb(WORD _wVk, WORD _wScan, DWORD _dwFlags, DWORD _time, ULONG_PTR _dwExtraInfo) {
-			INPUT ip = {};
+			INPUT ip;
 			ip.type = INPUT_KEYBOARD;
 			ip.ki.wVk = _wVk;
 			ip.ki.wScan = _wScan;
@@ -96,6 +96,9 @@ namespace nova {
 			ip.ki.time = _time;
 			ip.ki.dwExtraInfo = _dwExtraInfo;
 			return ip;
+
+			// Unfortunately, this does not work according to 8.5.1/16 of the c++ standard.
+			//return {INPUT_KEYBOARD, _wVk, _wScan, _dwFlags, _time, _dwExtraInfo};
 		}
 		BOOL is_capital(TCHAR in) {
 			return (HIBYTE(VkKeyScanEx(in, locale)) & 1);
@@ -109,7 +112,6 @@ namespace nova {
 			if (!is_down) {
 				flags |= KEYEVENTF_KEYUP;
 			}
-
 			// Return a keyboard INPUT struct
 			return make_input_kb(0, scan_code, flags, 0, 0);
 		}
@@ -124,7 +126,7 @@ namespace nova {
 
 		//---//helper functions for mouse
 		INPUT make_input_ms(LONG _dx, LONG _dy, DWORD _mouseData, DWORD _dwFlags, DWORD _time, ULONG_PTR _dwExtraInfo) {
-			INPUT ip = {};
+			/*INPUT ip = {};
 			ip.type = INPUT_MOUSE;
 			ip.mi.dx = _dx;
 			ip.mi.dy = _dy;
@@ -132,7 +134,10 @@ namespace nova {
 			ip.mi.dwFlags = _dwFlags;
 			ip.mi.time = _time;
 			ip.mi.dwExtraInfo = _dwExtraInfo;
-			return ip;
+			return ip;*/
+
+			// This works because MOUSEINPUT is the first struct in the union inside the INPUT struct.
+			return {INPUT_MOUSE, _dx, _dy, _mouseData, _dwFlags, _time, _dwExtraInfo};
 		}
 
 		//---//helper functions for window
